@@ -42,7 +42,9 @@
 /*
  * Link sensing database for the OLSR routing daemon
  */
-
+/*
+*link_set 是一个
+*/
 #ifndef _LINK_SET_H
 #define _LINK_SET_H
 
@@ -56,15 +58,19 @@
 #define LINK_LOSS_MULTIPLIER (1<<16)
 
 struct link_entry {
-  union olsr_ip_addr local_iface_addr;
-  union olsr_ip_addr neighbor_iface_addr;
+  union olsr_ip_addr local_iface_addr;//local节点的接口地址
+  union olsr_ip_addr neighbor_iface_addr;//邻居节点的接口地址
   const struct interface *inter;
   char *if_name;
-  struct timer_entry *link_timer;
-  struct timer_entry *link_sym_timer;
-  uint32_t ASYM_time;
+  struct timer_entry *link_timer;//记录到期的时间，必须被移除
+  struct timer_entry *link_sym_timer;//当链路是对称状态时的时间
+  uint32_t ASYM_time;//当邻居接口被认为已经是heard状态的时间
+  /*
+*当L_timer和L_sym_timer都到期的时候该条链路被认为丢失
+*当L_timer没有过期的时候，链路状态声明为对称的，当过期后，声明为非对称的
+*/
   olsr_reltime vtime;
-  struct neighbor_entry *neighbor;
+  struct neighbor_entry *neighbor;//一个neighbor体的链表，用来存储当前路由器的邻居信息
   uint8_t prev_status;
 
   /*
