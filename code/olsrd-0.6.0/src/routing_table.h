@@ -64,15 +64,15 @@
 #define RT_METRIC_DEFAULT 2
 
 /* a composite metric is used for path selection */
-struct rt_metric {
-  olsr_linkcost cost;
-  uint32_t hops;
+struct rt_metric {//路由选择时采用复合矩阵
+  olsr_linkcost cost;//两个路由点之间的花销
+  uint32_t hops;//两个路由点之间的跳数
 };
 
 /* a nexthop is a pointer to a gateway router plus an interface */
 struct rt_nexthop {
-  union olsr_ip_addr gateway;          /* gateway router */
-  int iif_index;                       /* outgoing interface index */
+  union olsr_ip_addr gateway;//下一跳网关          /* gateway router */
+  int iif_index;//接口索引                       /* outgoing interface index */
 };
 
 /*
@@ -179,7 +179,7 @@ enum olsr_rt_origin {
 /**
  * IPv4 <-> IPv6 wrapper
  */
-union olsr_kernel_route {
+union olsr_kernel_route {//核心路由表结构
   struct {
     struct sockaddr rt_dst;
     struct sockaddr rt_gateway;
