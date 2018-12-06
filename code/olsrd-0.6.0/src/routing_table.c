@@ -165,13 +165,13 @@ avl_comp_ipv6_prefix(const void *prefix1, const void *prefix2)
  * Initialize the routingtree and kernel change queues.
  */
 void
-olsr_init_routing_table(void)
+olsr_init_routing_table(void)//初始化路由表
 {
   OLSR_PRINTF(5, "RIB: init routing tree\n");
 
   /* the routing tree */
-  avl_init(&routingtree, avl_comp_prefix_default);
-  routingtree_version = 0;
+  avl_init(&routingtree, avl_comp_prefix_default);//调用avl_init()初始化一个avl树
+  routingtree_version = 0;//用以检测每一个rt_entry和rt_path子树中过时的信息
 
   /*
    * Get some cookies for memory stats and memory recycling.
@@ -180,7 +180,7 @@ olsr_init_routing_table(void)
   olsr_cookie_set_memory_size(rt_mem_cookie, sizeof(struct rt_entry));
 
   rtp_mem_cookie = olsr_alloc_cookie("rt_path", OLSR_COOKIE_TYPE_MEMORY);
-  olsr_cookie_set_memory_size(rtp_mem_cookie, sizeof(struct rt_path));
+  olsr_cookie_set_memory_size(rtp_mem_cookie, sizeof(struct rt_path));//为rt_entry和rt_path分配内存，创建相应的cookie
 }
 
 /**
@@ -228,9 +228,18 @@ olsr_update_rt_path(struct rt_path *rtp, struct tc_entry *tc, struct link_entry 
 /**
  * Alloc and key a new rt_entry.
  */
+
+/*
+  创建一个可用的路由条目，
+  对提供的参数ip前缀分配一个路由条目空间，
+  并做一些相应的初始化，并把该入口插入到avl树里
+*/
 static struct rt_entry *
 olsr_alloc_rt_entry(struct olsr_ip_prefix *prefix)
 {
+  /*
+    申请内存空间并把空间内清零
+  */
   struct rt_entry *rt = olsr_cookie_malloc(rt_mem_cookie);
   if (!rt) {
     return NULL;
