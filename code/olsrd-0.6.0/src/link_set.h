@@ -43,7 +43,7 @@
  * Link sensing database for the OLSR routing daemon
  */
 /*
-*link_set 是一个
+*link_set 是一个关于本地链路信息的信息表
 */
 #ifndef _LINK_SET_H
 #define _LINK_SET_H
@@ -116,19 +116,23 @@ LISTNODE2STRUCT(list2link, struct link_entry, link_list);
   for (link_node = link_head_node->next; \
     link_node != link_head_node; link_node = next_link_node) { \
     next_link_node = link_node->next; \
-    link = list2link(link_node);
+    link = list2link(link_node);//对链表进行连接
 #define OLSR_FOR_ALL_LINK_ENTRIES_END(link) }}
-
+/*
+*link_set 中的全局变量
+link_entry_head链路链表的头部结点
+link_changes 记录MPRs集合中是否有改变
+*/
 /* Externals */
 extern struct list_node link_entry_head;
 extern bool link_changes;
 
 /* Function prototypes */
 
-void olsr_set_link_timer(struct link_entry *, unsigned int);
-void olsr_init_link_set(void);
-void olsr_reset_all_links(void);
-void olsr_delete_link_entry_by_ip(const union olsr_ip_addr *);
+void olsr_set_link_timer(struct link_entry *, unsigned int);//设置链路到期的时间
+void olsr_init_link_set(void);//初始化
+void olsr_reset_all_links(void);//这个函数的功能是设置所有链路都为丢失状态，这样最后的一个Hello消息会告诉你的邻居你走了
+void olsr_delete_link_entry_by_ip(const union olsr_ip_addr *);//删除所有的匹配Ip的链路信息
 void olsr_expire_link_hello_timer(void *);
 void signal_link_changes(bool);        /* XXX ugly */
 
