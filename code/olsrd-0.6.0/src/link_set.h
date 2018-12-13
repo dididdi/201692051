@@ -138,10 +138,10 @@ void signal_link_changes(bool);        /* XXX ugly */
 
 struct link_entry *get_best_link_to_neighbor(const union olsr_ip_addr *);
 
-struct link_entry *lookup_link_entry(const union olsr_ip_addr *, const union olsr_ip_addr *remote_main, const struct interface *);
+struct link_entry *lookup_link_entry(const union olsr_ip_addr *, const union olsr_ip_addr *remote_main, const struct interface *);//查找一条链路
 
 struct link_entry *update_link_entry(const union olsr_ip_addr *, const union olsr_ip_addr *, const struct hello_message *,
-                                     const struct interface *);
+                                     const struct interface *);//更新一条链路
 
 int check_neighbor_link(const union olsr_ip_addr *);
 int replace_neighbor_link_set(const struct neighbor_entry *, struct neighbor_entry *);

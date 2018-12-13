@@ -209,6 +209,12 @@ get_neighbor_status(const union olsr_ip_addr *address)
 
 /**
  * Find best link to a neighbor
+ * 找到与邻居结点的最好路径（开销0）
+ * 个人认为该算法与寻找最短路径的迪杰斯特拉算法相似：
+ *   第一步：对于我们所有已知的链路，先排除不是该节点邻居的链路
+ *   第二步：该算法对接口的lq_level分了情况（查了RFC文档和资料也不理解这里的lq_level代表啥不过不影响）
+ *   第三步：对第二步筛选后的链路再选择：该接口（链路）的跳数是否小于当前跳数或者跳数相等且邻居是当前节点，如果该链路是对称链路则为最优链路，否则设为备用链路
+ * 
  */
 struct link_entry *
 get_best_link_to_neighbor(const union olsr_ip_addr *remote)
@@ -216,7 +222,7 @@ get_best_link_to_neighbor(const union olsr_ip_addr *remote)
   const union olsr_ip_addr *main_addr;
   struct link_entry *walker, *good_link, *backup_link;
   struct interface *tmp_if;
-  int curr_metric = MAX_IF_METRIC;
+  int curr_metric = MAX_IF_METRIC;//路径最大跳数为100
   olsr_linkcost curr_lcost = LINK_COST_BROKEN;
   olsr_linkcost tmp_lc;
 
