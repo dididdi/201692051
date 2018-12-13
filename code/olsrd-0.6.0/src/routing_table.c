@@ -205,9 +205,16 @@ olsr_lookup_routing_table(const union olsr_ip_addr *dst)
   return rt_tree_node ? rt_tree2rt(rt_tree_node) : NULL;
 }
 
-/**
+/*
  * Update gateway/interface/etx/hopcount and the version for a route path.
  */
+/*
+  每条路径都是周期性更新的
+  修改所维护的routingtree_version指，
+  并将相应的网关地址、接口地址、跳数和路径花销置为新接收到的值
+  
+  此函数用于为一条给定的rt_path创建一个route entry并将其插入到RIB树中和计算路由表
+*/
 void
 olsr_update_rt_path(struct rt_path *rtp, struct tc_entry *tc, struct link_entry *link)
 {
@@ -244,7 +251,10 @@ olsr_alloc_rt_entry(struct olsr_ip_prefix *prefix)
   if (!rt) {
     return NULL;
   }
-
+  /*
+    标识该入口为新分配入口，
+    并把该入口的目的地址设置成为参数提供的入口地址
+  */
   memset(rt, 0, sizeof(*rt));
 
   /* Mark this entry as fresh (see process_routes.c:512) */
@@ -253,6 +263,10 @@ olsr_alloc_rt_entry(struct olsr_ip_prefix *prefix)
   /* set key and backpointer prior to tree insertion */
   rt->rt_dst = *prefix;
 
+  /*
+    把入口的数节点插入到整个路由表中
+    并初始化树
+  */
   rt->rt_tree_node.key = &rt->rt_dst;
   avl_insert(&routingtree, &rt->rt_tree_node, AVL_DUP_NO);
 
@@ -301,6 +315,11 @@ olsr_alloc_rt_path(struct tc_entry *tc, struct olsr_ip_prefix *prefix, uint8_t o
 void
 olsr_insert_rt_path(struct rt_path *rtp, struct tc_entry *tc, struct link_entry *link)
 {
+  /*
+    如果传入的tc_entry为ROUTE_COST_BROKEN
+    或者传入的rtp的目的地址长度大于所设置的最大地址长度
+    则直接返回
+  */
   struct rt_entry *rt;
   struct avl_node *node;
 
@@ -319,7 +338,9 @@ olsr_insert_rt_path(struct rt_path *rtp, struct tc_entry *tc, struct link_entry 
   }
 
   /*
-   * first check if there is a route_entry for the prefix.
+    调用avl_find()函数检查传入的rtp的节点是否在路由表中,
+    如果节点不在路由表的avl树中则重新分配一个节点,
+    如果在就把节点类型从avl_node类型转化成rt_entry类型
    */
   node = avl_find(&routingtree, &rtp->rtp_dst);
 
@@ -347,7 +368,11 @@ olsr_insert_rt_path(struct rt_path *rtp, struct tc_entry *tc, struct link_entry 
 
   /* backlink to the owning route entry */
   rtp->rtp_rt = rt;
-
+  /*
+    把新节点添加进avl树里，
+    改变相应的参数
+    更新整个路由表
+  */
   /* update the version field and relevant parameters */
   olsr_update_rt_path(rtp, tc, link);
 }
@@ -355,6 +380,11 @@ olsr_insert_rt_path(struct rt_path *rtp, struct tc_entry *tc, struct link_entry 
 /**
  * Unlink and free a rt_path.
  */
+/*
+  从路由表中删除rtp树
+  并把它从TC树里删除
+  然后改变路由表版本
+*/
 void
 olsr_delete_rt_path(struct rt_path *rtp)
 {
@@ -451,6 +481,11 @@ olsr_cmp_rtp(const struct rt_path *rtp1, const struct rt_path *rtp2, const struc
   if (inetgw == rtp2)
     etx2 *= olsr_cnf->lq_nat_thresh;
 
+  /*
+    优先比较路径花销
+    若两个路径花销相同，则比较条数
+    若跳数也相同，则比较两条路径的源地址，地址小的更优
+  */
   /* etx comes first */
   if (etx1 < etx2) {
     return true;
@@ -552,6 +587,10 @@ olsr_insert_routing_table(union olsr_ip_addr *dst, int plen, union olsr_ip_addr 
    * If the tc_entry is disconnected, i.e. has no edges it will not
    * be explored during SPF run.
    */
+  /*
+     先调用olsr_locate_tc_entry()，根据源地址判断该tc_entry是否可连接
+     因为tc_entry作为所有路由的连接点，如果它是不可连接的，则在最短路径优先计算时它不会被考虑
+  */
   tc = olsr_locate_tc_entry(originator);
 
   /*
