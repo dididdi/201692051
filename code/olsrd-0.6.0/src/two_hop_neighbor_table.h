@@ -56,6 +56,13 @@ struct neighbor_list_entry {
   struct neighbor_list_entry *next;
   struct neighbor_list_entry *prev;
 };
+/*
+*该数据结构的含义是节点存储一个对称邻居表，描述的是一个邻居节点与2跳邻居节点的对称链路
+*他的属性有 N_neighbor_main_addr是邻居的Ip地址
+* N_2hop_addr是与上个地址是对称链路的2跳节点
+* N_time 过期时间
+*
+*/
 
 struct neighbor_2_entry {
   union olsr_ip_addr neighbor_2_addr;

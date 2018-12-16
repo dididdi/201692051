@@ -56,10 +56,10 @@ struct neighbor_2_list_entry {
 #define OLSR_NBR2_LIST_JITTER 5 /* percent */
 
 struct neighbor_entry {
-  union olsr_ip_addr neighbor_main_addr;
-  uint8_t status;
-  uint8_t willingness;
-  bool is_mpr;
+  union olsr_ip_addr neighbor_main_addr;      //邻居的主地址
+  uint8_t status;                          //节点i与一邻居节点的链路状态，SYM或者NOT_SYM
+  uint8_t willingness;                  //该参数是一个指标，取值为0-7其具体含义为该结点愿意代表其他节点承担网络交通的程度
+  bool is_mpr;                          //是否是MPR节点
   bool was_mpr;                        /* Used to detect changes in MPR */
   bool skip;
   int neighbor_2_nocov;
@@ -87,7 +87,7 @@ void olsr_init_neighbor_table(void);
 
 int olsr_delete_neighbor_2_pointer(struct neighbor_entry *, struct neighbor_2_entry *);
 
-struct neighbor_2_list_entry *olsr_lookup_my_neighbors(const struct neighbor_entry *, const union olsr_ip_addr *);
+struct neighbor_2_list_entry *olsr_lookup_my_neighbors(const struct neighbor_entry *, const union olsr_ip_addr *); //通过一个给定的邻居查找是否能到达给定二跳邻居，第二个参数的含义
 
 int olsr_delete_neighbor_table(const union olsr_ip_addr *);
 
