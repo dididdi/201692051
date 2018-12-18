@@ -53,13 +53,16 @@
 /* deserialized OLSR header */
 
 struct olsr_common {
-  uint8_t type;
-  olsr_reltime vtime;
-  uint16_t size;
-  union olsr_ip_addr orig;
-  uint8_t ttl;
-  uint8_t hops;
-  uint16_t seqno;
+  uint8_t type;                 //取值在0~127之间，此数表示MEssage是哪种类型的
+  olsr_reltime vtime;          //该属性表示收到该消息的节点认为该消息有效的时间，其计算公式为
+                               //validity time = C*(1+a/16)* 2^b  [in seconds]
+                               //其中a=是vtime的高4位，b是vtime的低四位
+  uint16_t size;              //表示消息的大小
+  union olsr_ip_addr orig;    //此域包含产生该消息的节点的主地址
+                               //这里应避免与 IP报头里的源地址混淆，后者要每次变更为中间重传消息节点的接口地址。前者在重传中永远不会变化。
+  uint8_t ttl;                //time to live
+  uint8_t hops;                //消息的跳数
+  uint16_t seqno;                //产生此消息的节点会指派一个唯一的标识号，每生成一个消息，序列号+1
 };
 
 /* serialized IPv4 OLSR header */
