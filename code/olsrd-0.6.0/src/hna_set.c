@@ -367,12 +367,12 @@ olsr_print_hna_set(void)
 bool
 olsr_input_hna(union olsr_message *m, struct interface *in_if __attribute__ ((unused)), union olsr_ip_addr *from_addr)
 {
-
+ 
   uint8_t olsr_msgtype;
   olsr_reltime vtime;
   uint16_t olsr_msgsize;
   union olsr_ip_addr originator;
-  uint8_t hop_count;
+  uint8_t hop_count;//用于接收方进行判断消息跳数，接收方借此来判断如何处理这条HNA消息
   uint16_t msg_seq_number;
 
   int hnasize;
@@ -384,6 +384,10 @@ olsr_input_hna(union olsr_message *m, struct interface *in_if __attribute__ ((un
 #endif
 
   /* Check if everyting is ok */
+  /*
+    在发消息之前确保该节点所发的节点为标准的HNA消息包，
+    确保该消息符合OLSR协议的规范
+  */
   if (!m) {
     return false;
   }
@@ -391,6 +395,7 @@ olsr_input_hna(union olsr_message *m, struct interface *in_if __attribute__ ((un
 
   /* olsr_msgtype */
   pkt_get_u8(&curr, &olsr_msgtype);
+  /*检测是否符合消息包规范，如符合可继续发送，如不符合规范，则返回false，不发送*/
   if (olsr_msgtype != HNA_MESSAGE) {
     OLSR_PRINTF(1, "not a HNA message!\n");
     return false;
