@@ -103,12 +103,16 @@ generate_mid(void *p)
   }
 
 }
-
+/*
+  节点生成的HNA消息包被放进一个队列中，
+  并打上时间戳
+  对于未过期的HNA消息，将其置入缓冲区中，等待发送
+*/
 void
 generate_hna(void *p)
 {
   struct interface *ifn = (struct interface *)p;
-
+  //将HNA消息放在队列中，当读取到该消息时，判断消息是否过期，如未过期，则读取消息内容
   if (queue_hna(ifn) && TIMED_OUT(ifn->fwdtimer)) {
     set_buffer_timer(ifn);
   }
