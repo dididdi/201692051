@@ -68,6 +68,9 @@ struct hna_entry {
   struct hna_entry *prev;
 };
 
+/*
+  处理所有HNA条目
+*/
 #define OLSR_FOR_ALL_HNA_ENTRIES(hna) \
 { \
   int _idx; \
