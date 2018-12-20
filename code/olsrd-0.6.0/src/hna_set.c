@@ -68,9 +68,9 @@ olsr_init_hna_set(void)
     hna_set[idx].next = &hna_set[idx];
     hna_set[idx].prev = &hna_set[idx];
   }
-
+  //hna_net_timer_cookie记录的是数据包头部的Vtime值，类似的，下面的cookie都是对包内信息的记录
   hna_net_timer_cookie = olsr_alloc_cookie("HNA Network", OLSR_COOKIE_TYPE_TIMER);
-
+  
   hna_net_mem_cookie = olsr_alloc_cookie("hna_net", OLSR_COOKIE_TYPE_MEMORY);
   olsr_cookie_set_memory_size(hna_net_mem_cookie, sizeof(struct hna_net));
 
