@@ -62,7 +62,7 @@ struct olsr_common {
                                //这里应避免与 IP报头里的源地址混淆，后者要每次变更为中间重传消息节点的接口地址。前者在重传中永远不会变化。
   uint8_t ttl;                //time to live
   uint8_t hops;                //消息的跳数
-  uint16_t seqno;                //产生此消息的节点会指派一个唯一的标识号，每生成一个消息，序列号+1
+  uint16_t seqno;                //产生此消息的节点会指派一个唯一的标识号，每生成一个消息，序列号+
 };
 
 /* serialized IPv4 OLSR header */
@@ -90,15 +90,27 @@ struct olsr_header_v6 {
 };
 
 /* deserialized LQ_HELLO */
-
+//hello消息的头部部分
 struct lq_hello_neighbor {
-  uint8_t link_type;
+  uint8_t link_type;                /*
+                                     *链路类型，有4种类型分别是 
+                                     *UNSPEC_LINK 表示没有关于链路更多的信息
+                                     *ASYM_LINK， 表示是一个非对称链路
+                                     *SYM_LINK ，  表示是一个对称链路
+                                     *LOST_LINK    表示链路已经丢失
+                                     */  
   uint8_t neigh_type;
+/*
+*neigh _type 指的是邻居的类型，其取值有3个分别为：
+*  SYM_NEIGH 表示该结点与发送结点至少有一条对称链路
+*  MPR-NEIGH 表示该为SYM_NEIGH邻居外，还被发送方选择成为了MPR结点
+*  NOT_NEIGH 表示结点不可能与发送结点成为对称结点
+*/
   union olsr_ip_addr addr;
   struct lq_hello_neighbor *next;
   uint32_t linkquality[0];
 };
-
+//hello消息的数据包头部，即lq_hello_message是一个完整的数据包，里面有lq_hello_neighbor和lq_hello_neighbor信息
 struct lq_hello_message {
   struct olsr_common comm;
   olsr_reltime htime;
@@ -107,16 +119,19 @@ struct lq_hello_message {
 };
 
 /* serialized LQ_HELLO */
+//lq_hello_header与lq_hello_neighbor共同组成hello消息首部
 struct lq_hello_info_header {
   uint8_t link_code;
-  uint8_t reserved;
+  uint8_t reserved; 
   uint16_t size;
 };
 
 struct lq_hello_header {
-  uint16_t reserved;
-  uint8_t htime;
-  uint8_t will;
+  uint16_t reserved;    //在这里reserved是一个定值 0000000000000
+  uint8_t htime;         //表示该结点在这个接口发送hello包的间隔，有特定的计算公式
+  uint8_t will;          /*衡量该结点愿意承担传输任务的积极性，WILL_NEVER表示该结点不会被结点选择为MPR结点
+                                                                WILL_ALWAYS表示该节点必会被选择我MPR结点
+                         */
 };
 
 /* deserialized LQ_TC */

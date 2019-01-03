@@ -62,7 +62,7 @@ struct link_entry {
   union olsr_ip_addr neighbor_iface_addr;//邻居节点的接口地址
   const struct interface *inter;
   char *if_name;
-  struct timer_entry *link_timer;//记录到期的时间，必须被移除
+  struct timer_entry *link_timer;//记录链路维护时的时间，必须被移除
   struct timer_entry *link_sym_timer;//当链路是对称状态时的时间
   uint32_t ASYM_time;//当邻居接口被认为已经是heard状态的时间
   /*
@@ -143,7 +143,7 @@ struct link_entry *lookup_link_entry(const union olsr_ip_addr *, const union ols
 struct link_entry *update_link_entry(const union olsr_ip_addr *, const union olsr_ip_addr *, const struct hello_message *,
                                      const struct interface *);//更新一条链路
 
-int check_neighbor_link(const union olsr_ip_addr *);
+int check_neighbor_link(const union olsr_ip_addr *);//返回连接接口的链路是否是对称链路
 int replace_neighbor_link_set(const struct neighbor_entry *, struct neighbor_entry *);
 int lookup_link_status(const struct link_entry *);
 void olsr_update_packet_loss_hello_int(struct link_entry *, olsr_reltime);
